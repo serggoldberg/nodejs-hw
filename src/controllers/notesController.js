@@ -31,7 +31,7 @@ export const createNote = async (req, res) => {
 // DELETE /notes/:noteId (контроллер)
 export const deleteNote = async (req, res) => {
   const { noteId } = req.params;
-  const note = await Note.findByIdAndDelete({
+  const note = await Note.findOneAndDelete({
     _id: noteId,
   });
   //console.log(note);
@@ -47,7 +47,7 @@ export const updateNote = async (req, res) => {
   const { noteId } = req.params;
   //console.log(noteId, req.body);
 
-  const note = await Note.findByIdAndUpdate(
+  const note = await Note.findOneAndUpdate(
     /* query, updateBody, options */
     {
       _id: noteId,
