@@ -3,9 +3,33 @@ import createHttpError from 'http-errors';
 
 // GET /notes (контроллер)
 export const getAllNotes = async (req, res) => {
-  const notes = await Note.find();
+  const { page, perPage, tag, search } = req.query;
+  const skip = (page - 1) * perPage;
+  const noteQuery = Note.find();
 
-  res.status(200).json(notes);
+  //фильтрация
+  if (tag) {
+    noteQuery.where('tag').equals(tag);
+  }
+  if (search) {
+    noteQuery.where({ $text: { $search: search } });
+  }
+
+  //получаем заметки с учетом пагинации и общее количество заметок одновременно
+  const [totalNotes, notes] = await Promise.all([
+    noteQuery.clone().countDocuments(), //3sek
+    noteQuery.skip(skip).limit(perPage), //2sek
+  ]); //3Sek
+
+  /* // получаем заметки с учетом пагинации
+  const notes = await Note.find().skip(skip).limit(perPage);
+  // общее количество заметок
+  const totalNotes = await Note.find().countDocuments(); */
+
+  // общее количество страниц
+  const totalPages = Math.ceil(totalNotes / perPage);
+
+  res.status(200).json({ page, perPage, totalNotes, totalPages, notes });
 };
 
 // GET /notes/:noteId (контроллер)

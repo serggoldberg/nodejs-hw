@@ -1,6 +1,7 @@
 import express from 'express';
 import 'dotenv/config';
 import cors from 'cors';
+import { errors } from 'celebrate';
 
 import { connectMongoDB } from './db/connectMongoDB.js';
 import notesRoutes from './routes/notesRoutes.js';
@@ -21,6 +22,9 @@ app.use(notesRoutes);
 
 // (кастомные) 404 notFoundHandler - middleware
 app.use(notFoundHandler);
+
+// (библиотечные celebrate) validation errors - middleware
+app.use(errors());
 
 // (кастомные) error errorHandler - middleware
 app.use(errorHandler);
